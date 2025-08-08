@@ -30,7 +30,7 @@ main {
 }
 
 div.timerDisplay {
-  color: #C3DC5B;
+  color: #AEC948;
   text-align: center;
   border: none;
   border-radius: 15px;
@@ -97,9 +97,24 @@ body.test-mode {
   position: absolute;
   top: 1.5rem;
   left: 1.5rem;
-  color: #fff2f4;
+  color: #ffffff;
   font-size: 24px;
   font-weight: bold;
   text-align: left;
   line-height: 1.2;
+}
+
+#currentTime {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+#fullscreenButton {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
 }

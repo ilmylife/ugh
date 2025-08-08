@@ -4,3 +4,7 @@
 node_modules
 dist
 .cache
+.gitignore
+.gitattributes
+404.html
+pomodoro

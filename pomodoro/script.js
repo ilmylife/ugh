@@ -9,13 +9,32 @@ const workTime_1 = 0.5 * 60;
 
 let workTime = 25 * 60;
 let breakTime = 5 * 60;
-let totalSeconds = 0;
+let totalSeconds = workTime;
 let isRunning = false;
-let isWorkSession = false;
+let isWorkSession = true;
 let timerDisplay = document.querySelector(".timerDisplay");
 let interval;
 let mode = document.getElementById("mode");
+const modeDisplay = document.getElementById("modeDisplay");
 
+function updateModeDisplay() {
+  const modeNames = {
+    0: "Current Session:<br>Short Session",
+    1: "Current Session:<br>Long Session",
+    2: "Current Session:<br>Crashout Session",
+    3: "Current Session:<br>Test Session"
+  }
+  if (modeDisplay) {
+    modeDisplay.innerHTML = modeNames[sessionMode];
+  }
+}
+
+function updateTimerDisplay() {
+  let minutes = Math.floor(totalSeconds / 60);
+  let seconds = Math.floor(totalSeconds % 60);
+  timerDisplay.textContent = (minutes < 10 ? "0" : "") + minutes + ":" +
+    (seconds < 10 ? "0" : "") + seconds;
+}
 //start timer function
 function startTimer() {
   if (!isRunning) {
@@ -23,24 +42,13 @@ function startTimer() {
     interval = setInterval(() => {
       if (totalSeconds > 0) {
         totalSeconds--;
-        let minutes = Math.floor(totalSeconds / 60);
-        let seconds = Math.floor(totalSeconds % 60);
-        //displaying the time in the right format
-        timerDisplay.textContent = (minutes < 10 ? "0" : "") + minutes + ":" +
-          (seconds < 10 ? "0" : "") + seconds;
+        updateTimerDisplay();
       } else {
-        clearInterval(interval);
-        isRunning = false;
-        isWorkSession = !isWorkSession;
-        totalSeconds = isWorkSession ? workTime : breakTime;
-        mode.textContent = isWorkSession ? "Work session" : "Break session";
-        let minutes = Math.floor(totalSeconds / 60);
-        let seconds = Math.floor(totalSeconds % 60);
-        timerDisplay.textContent = (minutes < 10 ? "0" : "") + minutes + ":" +
-          (seconds < 10 ? "0" : "") + seconds;
-        startTimer()
+       isWorkSession = !isWorkSession;
+       totalSeconds = isWorkSession ? workTime : breakTime;
+       mode.textContent = isWorkSession ? "Work session" : "Break session";
+       updateTimerDisplay();
       }
-
     }, 1000);
   }
 }
@@ -52,14 +60,10 @@ function stopTimer() {
 
 function resetTimer() {
   stopTimer();
-  if (isWorkSession) {
-    totalSeconds = workTime;
-  } else {
-    totalSeconds = breakTime;
-  }
-  let minutes = Math.floor(totalSeconds / 60);
-  let seconds = totalSeconds % 60;
-  timerDisplay.textContent = (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  isWorkSession = true;
+  totalSeconds = workTime;
+  mode.textContent = "Work session";
+  updateTimerDisplay();
 }
 
 let startButton = document.getElementById("start");
@@ -73,8 +77,7 @@ resetButton.addEventListener("click", resetTimer);
 function toggleSessionType() {
   stopTimer();
 
-  document.body.classList.remove("crashout-mode");
-  document.body.classList.remove("test-mode");
+  document.body.classList.remove("crashout-mode", "test-mode");
 
   // Cycle through the modes: 0 -> 1 -> 2 -> 0
   sessionMode = (sessionMode + 1) % 4;
@@ -85,37 +88,68 @@ function toggleSessionType() {
     case 0:
       workTime = 25 * 60;
       breakTime = 5 * 60;
-      newButtonText = "Long session";
+      newButtonText = "Next:<br>Long session";
       break;
     case 1:
       workTime = workTime_50;
       breakTime = breakTime_10;
-      newButtonText = "Crashout session";
+      newButtonText = "Next:<br>Crashout session";
       break;
     case 2:
       workTime = workTime_7;
       breakTime = breakTime_3;
-      newButtonText = "Test session";
+      newButtonText = "Next:<br>Test session";
       document.body.classList.add("crashout-mode");
       break;
     case 3:
       workTime = workTime_1;
       breakTime = workTime_1;
-      newButtonText = "Short session"
+      newButtonText = "Next:<br>Short session"
       document.body.classList.add("test-mode");
       break;
   }
 
-  //
-  document.getElementById("toggleButton").textContent = newButtonText;
-
-  totalSeconds = workTime;
-  isWorkSession = true;
-  let minutes = Math.floor(totalSeconds / 60);
-  let seconds = totalSeconds % 60;
-  timerDisplay.textContent = (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-  mode.textContent = "Work session";
+  updateModeDisplay();
+  document.getElementById("toggleButton").innerHTML = newButtonText;
+  resetTimer();
 }
 
 let toggleButton = document.getElementById("toggleButton");
 toggleButton.addEventListener("click", toggleSessionType);
+
+const clockDisplay = document.getElementById("currentTime");
+
+function showCurrentTime() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  if (clockDisplay) {
+    clockDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+  }
+}
+
+setInterval(showCurrentTime, 1000);
+
+showCurrentTime()
+
+updateModeDisplay();
+
+const fullscreenButton = document.getElementById('fullscreenButton');
+
+function toggleFullScreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name}`);
+    });
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+}
+
+if (fullscreenButton) {
+  fullscreenButton.addEventListener('click', toggleFullScreen);
+}
