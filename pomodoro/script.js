@@ -153,4 +153,3 @@ function toggleFullScreen() {
 if (fullscreenButton) {
   fullscreenButton.addEventListener('click', toggleFullScreen);
 }
-
